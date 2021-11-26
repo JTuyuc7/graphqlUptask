@@ -1,44 +1,31 @@
 const { ApolloServer, gql} = require('apollo-server');
+// Importar los typeDefs 
+const typeDefs = require('./db/schema');
+// Importar los resolvers
+const resolvers = require('./db/resolvers');
+// Conectar DB
+const conectarDB = require('./config/db');
+const jwt = require('jsonwebtoken');
+require('dotenv').config({ path: 'variables.env'});
 
+conectarDB()
 
-const typeDefs = gql`
-
-    type Curso {
-        titulo: String
-    }
-
-    type Query {
-        obtenerCursos: [Curso]
-    }
-`;
-
-const cursos = [
-    {
-        titulo: 'JavaScript Moderno Guia Definiva construye +10 proyectos',
-        tecnologia: 'Javascript ES6'
-    },
-    {
-        titulo: 'React - a guia completa Hooks context redux Mern +15 apps',
-        tecnologia: 'React'
-    },
-    {
-        titulo: 'Node.js - Bootcamp desarrolo web inc RVC y Rest API´s',
-        tecnologia: 'Node.js'
-    },
-    {
-        titulo: 'React Js Avanzado - Fullstack React GraphQL y apollo',
-        tecnologia: 'React'
-    }
-]
-
-
-const resolvers = {
-    Query: {
-        obtenerCursos: () => cursos,
-    },
-};
-
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({ typeDefs, 
+    resolvers, 
+    context: ({req}) => {
+        const token = req.headers['authorization'] || '';
+        if(token){
+            try {
+                const usuario = jwt.verify(token, process.env.SECRETA)
+                return{
+                    usuario
+                }
+            } catch (error) {
+                console.log(error, 'No token Found')
+            }
+        }
+    } 
+});
 
 server.listen().then( ({url}) => {
     console.log(`Server Runing on URL ${url}`)
