@@ -7,9 +7,9 @@ require('dotenv').config({ path: 'variables.evn'});
 
 //Crear y firmar un token
 const crearToken = (usuario, secreta, expiresIn) => {
-    const { id, email } = usuario;
+    const { id, email, nombre } = usuario;
 
-    return jwt.sign({ id, email}, secreta, { expiresIn } )
+    return jwt.sign({ id, email, nombre}, secreta, { expiresIn } )
 }
 
 const resolvers = {
@@ -60,7 +60,7 @@ const resolvers = {
 
             const findUser = await Usuario.findOne({email})
             if(!findUser){
-                throw new Error('User not Found');
+                throw new Error('User was not Found');
             }
 
             const correctPassword = await bcyptsj.compare( password , findUser.password);
@@ -70,7 +70,7 @@ const resolvers = {
             }
 
             return {
-                token: crearToken(findUser, process.env.SECRETA, '12hr' )
+                token: crearToken(findUser, process.env.SECRETA, '4hr' )
             }
         },
         crearProyecto: async (_, {input}, ctx) => {
