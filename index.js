@@ -29,6 +29,6 @@ const server = new ApolloServer({ typeDefs,
     } 
 });
 
-server.listen().then( ({url}) => {
+server.listen( { port: process.env.PORT || 4000 }).then( ({url}) => {
     console.log(`Server Runing on URL ${url}`)
 })
